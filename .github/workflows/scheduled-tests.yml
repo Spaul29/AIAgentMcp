@@ -1,0 +1,55 @@
+name: Scheduled Tests
+
+on:
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests in headed mode
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          CI: true
+        run: npm run test:headed
+        continue-on-error: true
+
+      - name: Generate Allure report
+        if: always()
+        run: npm run allure:report
+
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-scheduled
+          path: allure-report
+          retention-days: 30
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-scheduled
+          path: playwright-report
+          retention-days: 30
