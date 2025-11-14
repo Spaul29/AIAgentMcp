@@ -38,9 +38,20 @@ export function validateConfig(): void {
   
   if (config.isCIEnvironment && !config.githubPat) {
     console.warn('⚠️  GH_PAT is not configured in CI environment. Some features may not work.');
+    console.warn('   Make sure GH_PAT secret is added to GitHub repository settings.');
   }
   
   if (!config.isCIEnvironment && !config.githubPat) {
     console.warn('⚠️  GH_PAT is not configured for local development. Add it to .env file if needed.');
+  }
+  
+  // Log configuration status (for debugging)
+  if (process.env.DEBUG_CONFIG) {
+    console.log('Configuration Debug:');
+    console.log(`  BASE_URL: ${config.baseUrl}`);
+    console.log(`  GH_PAT: ${config.githubPat ? '✅ Configured' : '❌ Not configured'}`);
+    console.log(`  CI Environment: ${config.isCIEnvironment ? 'YES' : 'NO'}`);
+    console.log(`  GITHUB_ACTIONS: ${process.env.GITHUB_ACTIONS || 'not set'}`);
+    console.log(`  CI: ${process.env.CI || 'not set'}`);
   }
 }

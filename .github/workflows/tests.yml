@@ -35,6 +35,7 @@ jobs:
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
           CI: true
+          DEBUG_CONFIG: 'true'
         run: npm test
 
       - name: Generate Allure report
